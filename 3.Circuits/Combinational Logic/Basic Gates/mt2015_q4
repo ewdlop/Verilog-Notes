@@ -1,0 +1,31 @@
+module A
+(
+	input x,
+	input y,
+	output z
+);
+	assign z = (x ^ y) & x;
+endmodule
+
+module B
+(
+	input x,
+	input y,
+	output z
+);
+	assign z = ~(x ^ y);
+endmodule
+
+module top_module (input x, input y, output z);
+    
+    wire a_z1;
+    wire b_z1;
+    wire a_z2;
+    wire b_z2;
+    A IA1(x,y,a_z1);
+    B IB1(x,y,b_z1);
+    A IA2(x,y,a_z2);
+    B IB2(x,y,b_z2);
+    assign z = (a_z1|b_z1)^(a_z2&b_z2);
+    
+endmodule
