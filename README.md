@@ -16,6 +16,11 @@ https://medium.com/@pixelridge/the-art-of-thought-deploying-neural-networks-onto
 
 https://asmbits.01xz.net/wiki/Main_Page
 
+
+# CPUlator - CPU Assemble Simulator
+
+https://cpulator.01xz.net/
+
 #
 
 https://www.01xz.net/wiki/Main_Page
