@@ -1,41 +1,45 @@
-name: Synthesis
+name: Synthesize Verilog Modules
 
 on:
   push:
     branches:
-      - main
+      - main  # You can specify your main branch or all branches
   pull_request:
     branches:
-      - main
+      - main  # Runs for pull requests targeting the main branch
 
 jobs:
   synthesize:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # The environment to run the job on
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install Yosys
-      run: sudo apt-get install -y yosys
+      # Step 2: Set up Yosys synthesis tool
+      - name: Install Yosys
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential clang bison flex libreadline-dev \
+          git gawk tcl zlib1g-dev
+          git clone --recursive https://github.com/YosysHQ/yosys
+          cd yosys
+          make
+          sudo make install
 
-    - name: Run synthesis
-      run: |
-        yosys -p "synth -top top_module" 1.Getting\ Started/step_one.v
-        yosys -p "synth -top top_module" 1.Getting\ Started/zero.v
-        yosys -p "synth -top ALU" Misc/32-bit-CPU/arithmetic_logic_unit.v
-        yosys -p "synth -top ControlUnit" Misc/32-bit-CPU/control_unit.v
-        yosys -p "synth -top CPU" Misc/32-bit-CPU/datapath.v
-        yosys -p "synth -top RegisterFile" Misc/32-bit-CPU/register_file.v
-        yosys -p "synth -top sha256_core" Misc/BruteForce/sha256.v
-        yosys -p "synth -top elevator_1floor" Misc/Elevator/1-Floor\ Elevator.v
-        yosys -p "synth -top elevator_2floor" Misc/Elevator/2-Floor\ Eleavtor.v
-        yosys -p "synth -top elevator_1floor_lock" Misc/Elevator/elevator_1floor_lock.v
-        yosys -p "synth -top elevator_2floor_lock" Misc/Elevator/elevator_2floor_lock.v
-        yosys -p "synth -top elevator_3floor" Misc/Elevator/elevator_3floor.v
-        yosys -p "synth -top elevator_3floor" Misc/Elevator/elevator_3floor_lock.v
-        yosys -p "synth -top usb_interface" Misc/USB/usb_interface.v
-        yosys -p "synth -top readonly_device" readonly_device.v
-        yosys -p "synth -top rom_memory" rom_memory.v
-        yosys -p "synth -top write_only_device" write_only_device.v
-        yosys -p "synth -top implication_gate" Test/testbench.v
+      # Step 3: Run Yosys on Verilog files to check for synthesis errors
+      - name: Run Yosys Synthesis
+        run: |
+          yosys -p "read_verilog $(find . -name '*.v'); synth -top top_module" > synthesis_log.txt
+          cat synthesis_log.txt
+
+      # Step 4: Check if synthesis was successful
+      - name: Check synthesis log for errors
+        run: |
+          if grep -q "error" synthesis_log.txt; then
+            echo "Synthesis failed. Check synthesis_log.txt for errors."
+            exit 1
+          else
+            echo "Synthesis successful!"
+          fi
