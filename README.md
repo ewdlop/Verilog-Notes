@@ -114,3 +114,11 @@ The "Verilog Language" section covers various aspects of Verilog, including basi
 # Circuits
 
 The "Circuits" section includes examples of combinational and sequential logic circuits implemented in Verilog. It covers topics such as arithmetic circuits, basic gates, Karnaugh maps, multiplexers, counters, finite state machines, and shift registers. Each example demonstrates the functionality of a specific type of circuit and provides a brief description of its purpose.
+
+# GitHub Actions Workflow
+
+This repository includes a GitHub Actions workflow to ensure that all Verilog modules are synthesizable. The workflow is defined in the `.github/workflows/synthesis.yml` file.
+
+## Viewing Synthesis Results
+
+To view the synthesis results, navigate to the "Actions" tab in your GitHub repository. You will see a list of workflow runs. Click on a specific run to view the details, including the synthesis results and any errors or warnings that were encountered.
