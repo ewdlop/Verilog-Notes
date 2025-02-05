@@ -98,3 +98,19 @@ Defines a module that uses a casez statement to determine the position of the fi
 
 #### always_if.v
 Defines a module that uses an if statement to select between two inputs based on two selectors.
+
+# Brief Description of the Repository
+
+This repository contains a collection of Verilog code examples and notes related to digital design and hardware description languages (HDL). The examples cover various aspects of Verilog, including basic gates, modules, procedures, and more advanced features. The repository is organized into different sections to help users get started with Verilog and explore its capabilities.
+
+# Getting Started
+
+The "Getting Started" section provides simple Verilog examples to help beginners understand the basics of the language. It includes modules that perform basic operations such as assigning constant values and defining simple logic gates.
+
+# Verilog Language
+
+The "Verilog Language" section covers various aspects of Verilog, including basic gates, module hierarchy, and more advanced features. It provides examples of how to define and use different types of modules, perform arithmetic operations, and implement conditional logic.
+
+# Circuits
+
+The "Circuits" section includes examples of combinational and sequential logic circuits implemented in Verilog. It covers topics such as arithmetic circuits, basic gates, Karnaugh maps, multiplexers, counters, finite state machines, and shift registers. Each example demonstrates the functionality of a specific type of circuit and provides a brief description of its purpose.
