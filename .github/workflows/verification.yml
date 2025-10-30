@@ -1,0 +1,64 @@
+name: Verilog Verification
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Step 2: Install Verilator
+      - name: Install Verilator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git perl python3 make autoconf g++ flex bison ccache
+          sudo apt-get install -y libgoogle-perftools-dev numactl perl-doc
+          sudo apt-get install -y libfl2 libfl-dev zlibc zlib1g zlib1g-dev
+          
+          git clone https://github.com/verilator/verilator
+          cd verilator
+          git checkout stable
+          autoconf
+          ./configure
+          make -j$(nproc)
+          sudo make install
+          verilator --version
+      
+      # Step 3: Run Verilator lint checks on Verilog files
+      - name: Verilator Lint Check
+        run: |
+          echo "Running Verilator lint on all .v files..."
+          
+          # Create a temporary directory for lint results
+          mkdir -p lint_results
+          
+          # Find all .v files and run verilator --lint-only
+          find . -name "*.v" -type f | while read file; do
+            echo "Checking: $file"
+            verilator --lint-only -Wall "$file" 2>&1 | tee "lint_results/$(basename $file .v)_lint.log" || true
+          done
+          
+          echo "Verilator lint check complete!"
+          
+      # Step 4: Summary
+      - name: Verification Summary
+        run: |
+          echo "=== Verification Summary ==="
+          echo "Verilator lint checks completed"
+          echo "Check the logs above for any warnings or errors"
+          
+          if [ -d "lint_results" ]; then
+            echo ""
+            echo "Lint result files:"
+            ls -lh lint_results/
+          fi
