@@ -47,24 +47,25 @@ module nand_flash_controller #(
     localparam CMD_READ_STATUS    = 8'h70;
     
     // State machine states
-    localparam IDLE              = 4'd0;
-    localparam READ_CMD1         = 4'd1;
-    localparam READ_ADDR         = 4'd2;
-    localparam READ_CMD2         = 4'd3;
-    localparam READ_WAIT         = 4'd4;
-    localparam READ_DATA         = 4'd5;
-    localparam WRITE_CMD1        = 4'd6;
-    localparam WRITE_ADDR        = 4'd7;
-    localparam WRITE_DATA        = 4'd8;
-    localparam WRITE_CMD2        = 4'd9;
-    localparam ERASE_CMD1        = 4'd10;
-    localparam ERASE_ADDR        = 4'd11;
-    localparam ERASE_CMD2        = 4'd12;
-    localparam WAIT_READY        = 4'd13;
-    localparam STATUS_CMD        = 4'd14;
-    localparam STATUS_READ       = 4'd15;
+    localparam IDLE              = 5'd0;
+    localparam READ_CMD1         = 5'd1;
+    localparam READ_ADDR         = 5'd2;
+    localparam READ_CMD2         = 5'd3;
+    localparam READ_WAIT         = 5'd4;
+    localparam READ_DATA         = 5'd5;
+    localparam WRITE_CMD1        = 5'd6;
+    localparam WRITE_ADDR        = 5'd7;
+    localparam WRITE_DATA        = 5'd8;
+    localparam WRITE_CMD2        = 5'd9;
+    localparam ERASE_CMD1        = 5'd10;
+    localparam ERASE_ADDR        = 5'd11;
+    localparam ERASE_CMD2        = 5'd12;
+    localparam WAIT_READY        = 5'd13;
+    localparam STATUS_CMD        = 5'd14;
+    localparam STATUS_READ_WAIT  = 5'd15;
+    localparam STATUS_READ       = 5'd16;
     
-    reg [3:0] state, next_state;
+    reg [4:0] state, next_state;
     reg [7:0] io_out;
     reg io_dir;  // 0 = input from flash, 1 = output to flash
     reg [3:0] addr_cycle;
@@ -101,8 +102,8 @@ module nand_flash_controller #(
                 byte_counter <= 16'd0;
             end
             
-            // Capture status register when reading
-            if (state == STATUS_READ) begin
+            // Capture status register when reading (after flash_io stabilizes)
+            if (state == STATUS_READ_WAIT) begin
                 status_reg <= flash_io;
             end
         end
@@ -295,13 +296,19 @@ module nand_flash_controller #(
                 flash_we_n = 1'b0;
                 io_dir = 1'b1;
                 io_out = CMD_READ_STATUS;
+                next_state = STATUS_READ_WAIT;
+            end
+            
+            STATUS_READ_WAIT: begin
+                flash_ce_n = 1'b0;
+                flash_re_n = 1'b0;
+                // Wait one cycle for flash_io to stabilize
                 next_state = STATUS_READ;
             end
             
             STATUS_READ: begin
                 flash_ce_n = 1'b0;
-                flash_re_n = 1'b0;
-                // Status register is captured in sequential logic
+                // Status register is captured in sequential logic on entry to this state
                 // Check for errors (bit 0 indicates pass/fail)
                 if (status_reg[0] == 1'b1) begin
                     host_error = 1'b1;
