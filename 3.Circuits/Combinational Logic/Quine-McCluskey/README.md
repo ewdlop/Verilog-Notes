@@ -58,8 +58,9 @@ Majority function implementation (outputs 1 if at least 2 of 3 inputs are 1).
 - Minimized: ab + ac + bc
 
 ### qm_xor_like.v
-XOR-like function with 4 variables.
+Complex 4-variable function with limited simplification opportunity.
 - Minterms: 1,2,4,7,8,11,13,14
+- Note: This function requires all 8 product terms (minimal simplification possible)
 
 ### qm_prime_implicant.v
 Example demonstrating prime implicant selection.

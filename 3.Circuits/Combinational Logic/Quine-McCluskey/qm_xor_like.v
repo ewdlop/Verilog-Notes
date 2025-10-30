@@ -1,7 +1,6 @@
-// Quine-McCluskey: XOR-like function (4 inputs)
+// Quine-McCluskey: Complex function (4 inputs)
 // Function: f(a,b,c,d) with minterms: 1,2,4,7,8,11,13,14
-// Minimized form: a'b'cd' + a'bc'd' + ab'c'd + abc'd'
-// + a'b'c'd + ab'cd + abc'd + a'bcd
+// Each minterm is listed individually (limited simplification possible)
 module top_module(
     input a,
     input b,
@@ -9,6 +8,6 @@ module top_module(
     input d,
     output out
 );
-    assign out = (~a&~b&c&~d) | (~a&b&~c&~d) | (a&~b&~c&d) | (a&b&~c&~d)
-               | (~a&~b&~c&d) | (a&~b&c&d) | (a&b&~c&d) | (~a&b&c&d);
+    assign out = (~a&~b&~c&d) | (~a&~b&c&~d) | (~a&b&~c&~d) | (~a&b&c&d)
+               | (a&~b&~c&~d) | (a&~b&c&d) | (a&b&~c&d) | (a&b&c&~d);
 endmodule
