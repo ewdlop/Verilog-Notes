@@ -9,6 +9,9 @@ name: Verilog Verification
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest

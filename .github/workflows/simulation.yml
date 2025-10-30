@@ -9,6 +9,9 @@ name: Verilog Simulation
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   simulate:
     runs-on: ubuntu-latest
