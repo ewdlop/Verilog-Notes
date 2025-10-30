@@ -61,7 +61,8 @@ module nand_flash_controller #(
     localparam ERASE_ADDR        = 4'd11;
     localparam ERASE_CMD2        = 4'd12;
     localparam WAIT_READY        = 4'd13;
-    localparam READ_STATUS_STATE = 4'd14;
+    localparam STATUS_CMD        = 4'd14;
+    localparam STATUS_READ       = 4'd15;
     
     reg [3:0] state, next_state;
     reg [7:0] io_out;
@@ -71,7 +72,7 @@ module nand_flash_controller #(
     reg [7:0] status_reg;
     
     // Bidirectional I/O control
-    assign flash_io = io_dir ? io_out : 8'hzz;
+    assign flash_io = io_dir ? io_out : 8'hz;
     
     // Page buffer (simplified - in real implementation would be larger)
     reg [DATA_WIDTH-1:0] page_buffer [0:PAGE_SIZE-1];
@@ -82,6 +83,7 @@ module nand_flash_controller #(
             state <= IDLE;
             addr_cycle <= 4'd0;
             byte_counter <= 16'd0;
+            status_reg <= 8'h00;
         end else begin
             state <= next_state;
             
@@ -97,6 +99,11 @@ module nand_flash_controller #(
                 byte_counter <= byte_counter + 1'b1;
             end else begin
                 byte_counter <= 16'd0;
+            end
+            
+            // Capture status register when reading
+            if (state == STATUS_READ) begin
+                status_reg <= flash_io;
             end
         end
     end
@@ -278,26 +285,27 @@ module nand_flash_controller #(
             WAIT_READY: begin
                 flash_ce_n = 1'b0;
                 if (flash_rb_n == 1'b1) begin
-                    next_state = READ_STATUS_STATE;
+                    next_state = STATUS_CMD;
                 end
             end
             
-            READ_STATUS_STATE: begin
+            STATUS_CMD: begin
                 flash_ce_n = 1'b0;
                 flash_cle = 1'b1;
                 flash_we_n = 1'b0;
                 io_dir = 1'b1;
                 io_out = CMD_READ_STATUS;
-                
-                // Read status register
+                next_state = STATUS_READ;
+            end
+            
+            STATUS_READ: begin
+                flash_ce_n = 1'b0;
                 flash_re_n = 1'b0;
-                status_reg = flash_io;
-                
+                // Status register is captured in sequential logic
                 // Check for errors (bit 0 indicates pass/fail)
                 if (status_reg[0] == 1'b1) begin
                     host_error = 1'b1;
                 end
-                
                 next_state = IDLE;
             end
             
