@@ -1,6 +1,7 @@
+---
 name: Synthesize Verilog Modules
 
-on:
+'on':
   push:
     branches:
       - main  # You can specify your main branch or all branches
@@ -21,8 +22,8 @@ jobs:
       - name: Install Yosys
         run: |
           sudo apt update
-          sudo apt install -y build-essential clang bison flex libreadline-dev \
-          git gawk tcl zlib1g-dev
+          sudo apt install -y build-essential clang bison flex \
+          libreadline-dev git gawk tcl zlib1g-dev
           git clone --recursive https://github.com/YosysHQ/yosys
           cd yosys
           make
@@ -31,7 +32,9 @@ jobs:
       # Step 3: Run Yosys on Verilog files to check for synthesis errors
       - name: Run Yosys Synthesis
         run: |
-          yosys -p "read_verilog $(find . -name '*.v'); synth -top top_module" > synthesis_log.txt
+          VFILES=$(find . -name '*.v')
+          yosys -p "read_verilog $VFILES; synth -top top_module" \
+            > synthesis_log.txt
           cat synthesis_log.txt
 
       # Step 4: Check if synthesis was successful

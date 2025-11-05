@@ -1,0 +1,44 @@
+---
+name: Verilog Linting
+
+'on':
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install Verible linter
+      - name: Install Verible
+        run: |
+          VERIBLE_URL="https://github.com/chipsalliance/verible"
+          VERIBLE_VER="v0.0-3644-g9c1c8855"
+          VERIBLE_PKG="verible-${VERIBLE_VER}-linux-static-x86_64.tar.gz"
+          wget ${VERIBLE_URL}/releases/download/${VERIBLE_VER}/${VERIBLE_PKG}
+          tar -xzf ${VERIBLE_PKG}
+          sudo mv verible-${VERIBLE_VER}/bin/* /usr/local/bin/
+          verible-verilog-lint --version
+
+      # Step 3: Run Verible linter on all Verilog files
+      - name: Lint Verilog files
+        run: |
+          echo "Running Verible linter on all .v files..."
+          find . -name "*.v" -type f | while read file; do
+            echo "Linting: $file"
+            verible-verilog-lint "$file" || true
+          done
+
+          echo "Linting complete!"
